@@ -1,20 +1,20 @@
 'use strict';
-
-import * as vscode from 'vscode';
-import {type, pause} from './humanTyper';
-
-let typewriterBuffer:string;
-
-export function activate(context: vscode.ExtensionContext) {
-
+const vscode = require("vscode");
+const humanTyper_1 = require("./humanTyper");
+let typewriterBuffer;
+function activate(context) {
     let playTypewriterCmd = vscode.commands.registerCommand('typewriter.playback', () => {
-
-
-        let minSpeed = vscode.workspace.getConfiguration('typewriter').get<number>('TypingMinSpeed') | 30;
-        let maxSpeed = vscode.workspace.getConfiguration('typewriter').get<number>('TypingMaxSpeed') | 120;
-        type(typewriterBuffer, minSpeed, maxSpeed);
+        let minSpeed = vscode.workspace.getConfiguration('typewriter').get('TypingMinSpeed') | 30;
+        let maxSpeed = vscode.workspace.getConfiguration('typewriter').get('TypingMaxSpeed') | 120;
+        humanTyper_1.type(typewriterBuffer, minSpeed, maxSpeed);
     });
-
+    let playTypewriterClipboardCmd = vscode.commands.registerCommand('typewriter.playbackFromClipboard', () => {
+        let minSpeed = vscode.workspace.getConfiguration('typewriter').get('TypingMinSpeed') | 30;
+        let maxSpeed = vscode.workspace.getConfiguration('typewriter').get('TypingMaxSpeed') | 120;
+		vscode.env.clipboard.readText().then((text)=>{
+	        humanTyper_1.type(text, minSpeed, maxSpeed);
+		});
+    });
     let setTypewriterCmd = vscode.commands.registerCommand('typewriter.setTypewriter', () => {
         var editor = vscode.window.activeTextEditor;
         if (!editor) {
@@ -22,17 +22,17 @@ export function activate(context: vscode.ExtensionContext) {
         }
         var selection = editor.selection;
         typewriterBuffer = editor.document.getText(selection);
-    })
-
-    let pausePlaybackCmd = vscode.commands.registerCommand('typewriter.pause', () => {
-        pause();
     });
-
-
+    let pausePlaybackCmd = vscode.commands.registerCommand('typewriter.pause', () => {
+        humanTyper_1.pause();
+    });
     context.subscriptions.push(playTypewriterCmd);
+    context.subscriptions.push(playTypewriterClipboardCmd);
     context.subscriptions.push(setTypewriterCmd);
 }
-
+exports.activate = activate;
 // this method is called when your extension is deactivated
-export function deactivate() {
+function deactivate() {
 }
+exports.deactivate = deactivate;
+//# sourceMappingURL=extension.js.map
